@@ -41,12 +41,7 @@ public static class ClosedXMLExtensions
 
     public static IXLWorksheet? GetXLWorksheet(this XLWorkbook? workbook, string name)
     {
-        if (workbook is null)
-        {
-            return null;
-        }
-
-        if (!workbook.TryGetWorksheet(name, out var worksheet))
+        if (workbook is null || !workbook.TryGetWorksheet(name, out var worksheet))
         {
             return null;
         }
@@ -62,7 +57,7 @@ public static class ClosedXMLExtensions
         }
 
         IXLWorksheet? worksheet = GetXLWorksheet(workbook, sheetIndex);
-        if (worksheet == null)
+        if (worksheet is null)
         {
             return null;
         }
@@ -77,7 +72,7 @@ public static class ClosedXMLExtensions
 
     public static DataTable? GetDataTable(this XLWorkbook? workbook, string name)
     {
-        return GetDataTable(GetXLWorksheet(workbook, name));
+        return GetDataTable(workbook.GetXLWorksheet(name));
     }
 
     public static DataTable? GetDataTable(this IXLWorksheet? worksheet)
@@ -88,7 +83,7 @@ public static class ClosedXMLExtensions
         }
 
         worksheet.AutoFilter.Clear();
-        IXLRange rangeUsed = worksheet.RangeUsed();
+        var rangeUsed = worksheet.RangeUsed();
         if (rangeUsed is null || rangeUsed.RowCount() == 0)
         {
             return null;
@@ -114,64 +109,34 @@ public static class ClosedXMLExtensions
         return workbook.Worksheets.Select(x => x.Name);
     }
 
-    public static DataTable? ToDataTable(this IXLTable? table, int headerRow = 0)
+    public static object? ToObject(this IXLCell value)
     {
-        if (table is null || headerRow >= table.RowCount())
+        return value.DataType switch
         {
-            return null;
-        }
+            XLDataType.Blank => null,
+            XLDataType.Boolean => value.GetBoolean(),
+            XLDataType.Number => value.GetDouble(),
+            XLDataType.Text => value.GetText(),
+            XLDataType.Error => value.GetError(),
+            XLDataType.DateTime => value.GetDateTime(),
+            XLDataType.TimeSpan => value.GetTimeSpan(),
+            _ => throw new InvalidCastException(),
+        };
+    }
 
-        table.AutoFilter.Clear();
-        DataTable dataTable = new(table.Name);
-        foreach (IXLTableField item in table.Fields.Cast<IXLTableField>())
+    public static object? ToObject(this XLCellValue value)
+    {
+        return value.Type switch
         {
-            Type typeFromHandle = typeof(object);
-            if (item.IsConsistentDataType())
-            {
-                switch (item.Column.Cells().Skip(headerRow).First()
-                    .DataType)
-                {
-                    case XLDataType.Text:
-                        typeFromHandle = typeof(string);
-                        break;
-                    case XLDataType.Boolean:
-                        typeFromHandle = typeof(bool);
-                        break;
-                    case XLDataType.DateTime:
-                        typeFromHandle = typeof(DateTime);
-                        break;
-                    case XLDataType.TimeSpan:
-                        typeFromHandle = typeof(TimeSpan);
-                        break;
-                    case XLDataType.Number:
-                        typeFromHandle = typeof(double);
-                        break;
-                }
-            }
-
-            string columnName = ((headerRow > 0) ? item.Name : item.Column.ColumnLetter());
-            int j = 1;
-            while (dataTable.Columns.Contains(columnName))
-            {
-                columnName += $"_{j}";
-                j++;
-            }
-            dataTable.Columns.Add(columnName, typeFromHandle);
-        }
-
-        foreach (IXLRangeRow item2 in table.Rows().Skip(headerRow))
-        {
-            DataRow dataRow = dataTable.NewRow();
-            int i = 0;
-            foreach (IXLCell cell in item2.Cells())
-            {
-                dataRow[i] = ToObject(cell);
-                i++;
-            }
-            dataTable.Rows.Add(dataRow);
-        }
-
-        return dataTable;
+            XLDataType.Blank => null,
+            XLDataType.Boolean => value.GetBoolean(),
+            XLDataType.Number => value.GetNumber(),
+            XLDataType.Text => value.GetText(),
+            XLDataType.Error => value.GetError(),
+            XLDataType.DateTime => value.GetDateTime(),
+            XLDataType.TimeSpan => value.GetTimeSpan(),
+            _ => throw new InvalidCastException(),
+        };
     }
 
     public static DataTable AsDataTable(this IXLTable table)
@@ -218,34 +183,87 @@ public static class ClosedXMLExtensions
         return dataTable;
     }
 
-    public static object? ToObject(this IXLCell value)
+    public static DataTable? ToDataTable(this IXLTable? table, int headerRow = 0)
     {
-        return value.DataType switch
+        if (table is null || headerRow >= table.RowCount())
         {
-            XLDataType.Blank => null,
-            XLDataType.Boolean => value.GetBoolean(),
-            XLDataType.Number => value.GetDouble(),
-            XLDataType.Text => value.GetText(),
-            XLDataType.Error => value.GetError(),
-            XLDataType.DateTime => value.GetDateTime(),
-            XLDataType.TimeSpan => value.GetTimeSpan(),
-            _ => throw new InvalidCastException(),
-        };
+            return null;
+        }
+
+        table.AutoFilter.Clear();
+        DataTable dataTable = new(table.Name);
+        foreach (IXLTableField item in table.Fields.Cast<IXLTableField>())
+        {
+            Type typeFromHandle = typeof(object);
+            if (item.IsConsistentDataType())
+            {
+                switch (item.Column.Cells().Skip(headerRow).First()
+                    .DataType)
+                {
+                    case XLDataType.Text:
+                        typeFromHandle = typeof(string);
+                        break;
+                    case XLDataType.Boolean:
+                        typeFromHandle = typeof(bool);
+                        break;
+                    case XLDataType.DateTime:
+                        typeFromHandle = typeof(DateTime);
+                        break;
+                    case XLDataType.TimeSpan:
+                        typeFromHandle = typeof(TimeSpan);
+                        break;
+                    case XLDataType.Number:
+                        typeFromHandle = typeof(double);
+                        break;
+                }
+            }
+
+            string columnName = headerRow > 0 ? item.Name : item.Column.ColumnLetter();
+            int j = 1;
+            while (dataTable.Columns.Contains(columnName))
+            {
+                columnName += $"_{j}";
+                j++;
+            }
+            dataTable.Columns.Add(columnName, typeFromHandle);
+        }
+
+        foreach (IXLRangeRow item2 in table.Rows().Skip(headerRow))
+        {
+            DataRow dataRow = dataTable.NewRow();
+            int i = 0;
+            foreach (IXLCell cell in item2.Cells())
+            {
+                dataRow[i] = ToObject(cell);
+                i++;
+            }
+            dataTable.Rows.Add(dataRow);
+        }
+
+        return dataTable;
     }
 
-    public static object? ToObject(this XLCellValue value)
+    public static DataTable? ToDataTable(this IXLWorksheet worksheet, int headerRow = 0)
     {
-        return value.Type switch
+        if (worksheet is null)
         {
-            XLDataType.Blank => null,
-            XLDataType.Boolean => value.GetBoolean(),
-            XLDataType.Number => value.GetNumber(),
-            XLDataType.Text => value.GetText(),
-            XLDataType.Error => value.GetError(),
-            XLDataType.DateTime => value.GetDateTime(),
-            XLDataType.TimeSpan => value.GetTimeSpan(),
-            _ => throw new InvalidCastException(),
-        };
+            return null;
+        }
+
+        worksheet.AutoFilter.Clear();
+        var rangeUsed = worksheet.RangeUsed();
+        if (rangeUsed is null || rangeUsed.RowCount() == 0)
+        {
+            return null;
+        }
+
+        try
+        {
+            return rangeUsed.AsTable().ToDataTable(headerRow);
+        }
+        catch { }
+
+        return null;
     }
 
     public static DataTable? ToDataTable<T>(this IList<T> data)
@@ -293,7 +311,7 @@ public static class ClosedXMLExtensions
         return data;
     }
 
-    public static T GetItem<T>(DataRow dr)
+    public static T GetItem<T>(this DataRow dr)
     {
         Type temp = typeof(T);
         T obj = Activator.CreateInstance<T>();
