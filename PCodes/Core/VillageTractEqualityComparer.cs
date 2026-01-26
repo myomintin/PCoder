@@ -12,7 +12,7 @@ public class VillageTractEqualityComparer : IEqualityComparer<VillageTract>
             return true;
         }
 
-        if (x == null || y == null)
+        if (x is null || y is null)
         {
             return false;
         }

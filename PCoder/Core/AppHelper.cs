@@ -35,7 +35,7 @@ public static class AppHelper
         }
 
         var stsetting = settings.FirstOrDefault(x => x.Key == "State");
-        if (stsetting.Key == null || stsetting.Value == null)
+        if (stsetting.Key is null || stsetting.Value is null)
         {
             messages.Add("Error: State Setting is null");
 
@@ -43,7 +43,7 @@ public static class AppHelper
         }
 
         var szsetting = settings.FirstOrDefault(x => x.Key == "SAD_SAZ");
-        if (szsetting.Key == null || szsetting.Value == null)
+        if (szsetting.Key is null || szsetting.Value is null)
         {
             messages.Add("Error: SAD or SAZ Setting is null");
 
@@ -51,7 +51,7 @@ public static class AppHelper
         }
 
         var dssetting = settings.FirstOrDefault(x => x.Key == "District");
-        if (dssetting.Key == null || dssetting.Value == null)
+        if (dssetting.Key is null || dssetting.Value is null)
         {
             messages.Add("Error: District Setting is null");
 
@@ -59,7 +59,7 @@ public static class AppHelper
         }
 
         var tssetting = settings.FirstOrDefault(x => x.Key == "Township");
-        if (tssetting.Key == null || tssetting.Value == null)
+        if (tssetting.Key is null || tssetting.Value is null)
         {
             messages.Add("Error: Township Setting is null");
 
@@ -67,7 +67,7 @@ public static class AppHelper
         }
 
         var tnsetting = settings.FirstOrDefault(x => x.Key == "Town");
-        if (tnsetting.Key == null || tnsetting.Value == null)
+        if (tnsetting.Key is null || tnsetting.Value is null)
         {
             messages.Add("Error: Town Setting is null");
 
@@ -75,7 +75,7 @@ public static class AppHelper
         }
 
         var wdsetting = settings.FirstOrDefault(x => x.Key == "Ward");
-        if (wdsetting.Key == null || wdsetting.Value == null)
+        if (wdsetting.Key is null || wdsetting.Value is null)
         {
             messages.Add("Error: Ward Setting is null");
 
@@ -83,7 +83,7 @@ public static class AppHelper
         }
 
         var vtsetting = settings.FirstOrDefault(x => x.Key == "VillageTract");
-        if (vtsetting.Key == null || vtsetting.Value == null)
+        if (vtsetting.Key is null || vtsetting.Value is null)
         {
             messages.Add("Error: Village Tract Setting is null");
 
@@ -91,7 +91,7 @@ public static class AppHelper
         }
 
         var vlsetting = settings.FirstOrDefault(x => x.Key == "Village");
-        if (vlsetting.Key == null || vlsetting.Value == null)
+        if (vlsetting.Key is null || vlsetting.Value is null)
         {
             messages.Add("Error: Village Setting is null");
 

@@ -86,4 +86,15 @@ public static class CoreExtensions
 
         return null;
     }
+
+    public static bool FromActiveToBoolean(this string? value)
+    {
+        string? v = value.XTrim();
+        if (string.IsNullOrWhiteSpace(v))
+        {
+            return false;
+        }
+
+        return v.Equals("active", StringComparison.InvariantCultureIgnoreCase);
+    }
 }

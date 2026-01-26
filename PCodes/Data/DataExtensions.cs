@@ -11,6 +11,7 @@ public static class DataExtensions
         try
         {
             value = row.Field<DateTime?>(columnIndex);
+
             return value;
         }
         catch
@@ -25,6 +26,7 @@ public static class DataExtensions
         try
         {
             value = row.Field<double?>(columnIndex);
+
             return value;
         }
         catch
@@ -57,16 +59,5 @@ public static class DataExtensions
         { }
 
         return value;
-    }
-
-    public static bool FromActiveToBoolean(this string? value)
-    {
-        string? v = value.XTrim();
-        if (string.IsNullOrWhiteSpace(v))
-        {
-            return false;
-        }
-
-        return v.ToLowerInvariant() == "active";
     }
 }

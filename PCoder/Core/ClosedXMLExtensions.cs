@@ -304,7 +304,7 @@ public static class ClosedXMLExtensions
         List<T> data = [];
         foreach (DataRow row in dt.Rows)
         {
-            T item = GetItem<T>(row);
+            T item = row.GetItem<T>();
             data.Add(item);
         }
 
