@@ -104,7 +104,7 @@ public partial class ImportForm : Form
             ResultTextBox.Text = string.Empty;
             messages?.Clear();
             AppHelper.Upgrade(ImportFileLabel.Text, settings, options, messages);
-            if (messages != null)
+            if (messages is not null)
             {
                 ResultTextBox.Text = Environment.NewLine.Combine(messages);
             }

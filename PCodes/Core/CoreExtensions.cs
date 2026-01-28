@@ -49,7 +49,7 @@ public static class CoreExtensions
         List<Exception> list = [];
         for (Exception? ex2 = ex; ex2 != null; ex2 = ex2?.InnerException)
         {
-            if (ex2 != null)
+            if (ex2 is not null)
             {
                 list.Add(ex2);
             }

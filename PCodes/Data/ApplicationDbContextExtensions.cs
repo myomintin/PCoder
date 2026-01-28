@@ -42,7 +42,7 @@ public partial class ApplicationDbContext
         {
             messages.Add("Error: Upgrade Data");
             messages.Add(ex.Message);
-            if (ex.InnerException != null)
+            if (ex.InnerException is not null)
             {
                 messages.Add(ex.InnerException.Message);
             }
@@ -99,7 +99,7 @@ public partial class ApplicationDbContext
         {
             messages.Add("Error: Upgrade Data");
             messages.Add(ex.Message);
-            if (ex.InnerException != null)
+            if (ex.InnerException is not null)
             {
                 messages.Add(ex.InnerException.Message);
             }
@@ -155,7 +155,7 @@ public partial class ApplicationDbContext
     {
         //Set<T>().RemoveRange(Set<T>());
         //await SaveChangesAsync();
-        await this.Set<T>().ExecuteDeleteAsync();
+        await Set<T>().ExecuteDeleteAsync();
 
         return true;
     }
@@ -167,7 +167,7 @@ public partial class ApplicationDbContext
 
         //Set<T>().RemoveRange(models);
         //SaveChanges();
-        this.Set<T>().Where(predicate).ExecuteDelete();
+        Set<T>().Where(predicate).ExecuteDelete();
 
         return true;
     }
@@ -179,7 +179,7 @@ public partial class ApplicationDbContext
 
         //Set<T>().RemoveRange(models);
         //await SaveChangesAsync();
-        await this.Set<T>().Where(predicate).ExecuteDeleteAsync();
+        await Set<T>().Where(predicate).ExecuteDeleteAsync();
 
         return true;
     }
@@ -228,17 +228,17 @@ public partial class ApplicationDbContext
 
     public void AsTracking()
     {
-        this.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.TrackAll;
+        ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.TrackAll;
     }
 
     public void AsNoTracking()
     {
-        this.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+        ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
     }
 
     public void AsNoTrackingWithIdentityResolution()
     {
-        this.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTrackingWithIdentityResolution;
+        ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTrackingWithIdentityResolution;
     }
 
     #endregion
